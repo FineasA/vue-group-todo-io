@@ -1,9 +1,9 @@
 const PORT = process.env.PORT || 8080;
 const express = require("express");
-const serveStatic = require("serve-static");
+// const serveStatic = require("serve-static");
 const app = express();
 
-app.use("/", serveStatic(path.join(__dirname, "../dist")));
+// app.use("/", serveStatic(path.join(__dirname, "../dist")));
 
 const server = app.listen(PORT, () => {
   console.log(`Server running on port: ${PORT}`);
