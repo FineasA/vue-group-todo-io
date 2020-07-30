@@ -135,7 +135,7 @@ export default {
 .card-title {
   font-size: 2.5rem;
   font-family: "Roboto Mono", monospace;
-  opacity: 65%;
+  opacity: 65% !important;
 }
 
 .test-row {

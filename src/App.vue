@@ -57,7 +57,7 @@ body {
 .title-text {
   font-family: "Roboto Mono", monospace;
   letter-spacing: 0.5em;
-  opacity: 65%;
+  opacity: 65% !important;
   margin: 0 auto;
   margin-top: 1.2em;
 }
