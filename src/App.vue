@@ -26,19 +26,19 @@ import { EventBus } from "./main.js";
 export default {
   components: {
     Login,
-    ListDisplay
+    ListDisplay,
   },
   data() {
     return {
       login: false,
-      socket: io("localhost:3000")
+      socket: io("localhost:8080"),
     };
   },
   created() {
     EventBus.$on("login", () => {
       this.login = true;
     });
-  }
+  },
 };
 </script>
 
