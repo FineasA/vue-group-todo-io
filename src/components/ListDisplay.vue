@@ -10,22 +10,22 @@
         <b-card-text class="custom-border-card">
           <ul class="todo-list" style="text-align: left">
             <li v-if="todoItems.length === 0">It's empty in here...</li>
-            <b-input
-              @keyup.enter="confirmEdit(index)"
-              v-show="editing"
-              v-model="newTask"
-              placeholder="Edit task..."
-            ></b-input>
-            <li
-              v-show="!editing"
-              @click="editTask(index)"
-              v-for="(todo, index) in todoItems"
-              :key="index"
-            >
-              {{todo.todo}}
+
+            <li @click="editTask(index)" v-for="(todo, index) in todoItems" :key="index">
+              <span>
+                {{todo.todo}}
+                <b-input
+                  @keyup.enter="confirmEdit(index)"
+                  v-if="editing && index === indexClicked"
+                  v-model="newTask"
+                  placeholder="Edit task..."
+                  style="max-width: 50%"
+                ></b-input>
+              </span>
+
               <em class="text-muted small mt-3" style="float: right; font-size: 1rem">
                 submitted by {{todo.username}}
-                <strong>{{new Date() | moment("h:mm a")}}</strong>
+                <strong>{{todo.createdAt | moment('calendar')}}</strong>
               </em>
 
               <hr />
@@ -65,7 +65,7 @@ export default {
   props: ["socket", "username"],
   data() {
     return {
-      index: 0,
+      indexClicked: 0,
       todoItems: [],
       user: {
         userName: "",
@@ -78,13 +78,13 @@ export default {
   },
   methods: {
     confirmEdit(index) {
-      console.log(index);
-      this.todoItems[index].todo = this.newTask;
-      this.newTask = "";
-      this.editing = false;
+      this.socket.emit("user-edited-task", {
+        todoEdit: this.newTask,
+        index: index,
+      });
     },
     editTask(index) {
-      this.index = index;
+      this.indexClicked = index;
       this.editing = true;
     },
     makeToDo() {
@@ -92,14 +92,18 @@ export default {
         todo: this.user.todo,
         username: this.user.userName,
         id: this.socket.id,
+        createdAt: new Date(),
       });
       this.user.todo = "";
     },
   },
   created() {
+    this.socket.on("data-recieved", (data) => {
+      console.log(data);
+      this.todoItems = data;
+    });
     EventBus.$on("login", (username) => {
       this.user.userName = username;
-      console.log(this.users);
     });
 
     //get users from server when others join
@@ -109,8 +113,15 @@ export default {
 
     //get updated task data from server
     this.socket.on("send-task-data", (taskData) => {
-      console.log(taskData);
       this.todoItems.push(taskData);
+    });
+
+    //get updated edited tasks from server
+    this.socket.on("send-edited-data", (editData) => {
+      this.todoItems[editData.index].todo = editData.todoEdit;
+
+      this.newTask = "";
+      this.editing = false;
     });
   },
 };
@@ -135,7 +146,7 @@ export default {
 .card-title {
   font-size: 2.5rem;
   font-family: "Roboto Mono", monospace;
-  opacity: 65% !important;
+  opacity: 0.65 !important;
 }
 
 .test-row {

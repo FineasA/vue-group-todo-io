@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       login: false,
-      socket: io("https://vue-group-todo-io.herokuapp.com/"),
+      socket: io("localhost:3000"),
     };
   },
   created() {
@@ -57,7 +57,7 @@ body {
 .title-text {
   font-family: "Roboto Mono", monospace;
   letter-spacing: 0.5em;
-  opacity: 65% !important;
+  opacity: 0.65 !important;
   margin: 0 auto;
   margin-top: 1.2em;
 }

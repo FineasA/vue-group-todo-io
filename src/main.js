@@ -1,5 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
+import axios from "axios";
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPlug } from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +11,7 @@ library.add(faPlug);
 Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 Vue.config.productionTip = false;
+Vue.prototype.$http = axios;
 
 // Install BootstrapVue
 Vue.use(BootstrapVue);
