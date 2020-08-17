@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       login: false,
-      socket: io("localhost:3000"),
+      socket: io("https://vue-group-todo-io.herokuapp.com/"),
     };
   },
   created() {
