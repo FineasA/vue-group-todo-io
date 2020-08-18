@@ -11,7 +11,11 @@
           <ul class="todo-list" style="text-align: left">
             <li v-if="todoItems.length === 0">It's empty in here...</li>
 
-            <li @click="editTask(index)" v-for="(todo, index) in todoItems" :key="index">
+            <li
+              @click="editTask(index, todoItems[index].todo)"
+              v-for="(todo, index) in todoItems"
+              :key="index"
+            >
               <span>
                 {{todo.todo}}
                 <b-input
@@ -47,9 +51,9 @@
         <p class="text-muted">Team Members</p>
         <hr />
         <ul>
-          <li class="users-list" v-for="(user, index) in users" :key="index">
+          <li class="users-list" v-for="(userOnline, index) in usersOnline" :key="index">
             <font-awesome-icon color="lime" :icon="['fa', 'plug']" />
-            {{' '}}{{user}}
+            {{' '}}{{userOnline.username}}
           </li>
         </ul>
       </b-col>
@@ -71,19 +75,26 @@ export default {
         userName: "",
         todo: "",
       },
-      users: [],
+      usersOnline: [],
       editing: false,
       newTask: "",
+      oldTask: "",
     };
   },
   methods: {
     confirmEdit(index) {
-      this.socket.emit("user-edited-task", {
-        todoEdit: this.newTask,
-        index: index,
-      });
+      this.socket.emit(
+        "user-edited-task",
+        {
+          todoEdit: this.newTask,
+          index: index,
+        },
+        this.oldTask
+      );
     },
-    editTask(index) {
+    editTask(index, oldTask) {
+      console.log(oldTask);
+      this.oldTask = oldTask;
       this.indexClicked = index;
       this.editing = true;
     },
@@ -107,8 +118,10 @@ export default {
     });
 
     //get users from server when others join
-    this.socket.on("username-sent", (username) => {
-      this.users.push(username);
+    this.socket.on("users-list-updated", (usersOnline) => {
+      console.log("????????????");
+      console.log(usersOnline);
+      this.usersOnline = usersOnline;
     });
 
     //get updated task data from server
@@ -122,6 +135,14 @@ export default {
 
       this.newTask = "";
       this.editing = false;
+    });
+
+    //get updated team members online from server
+    this.socket.on("user-disconnected-update", (socketId) => {
+      console.log(this.users);
+      console.log(socketId);
+      const result = this.users.filter((user) => user.socketId !== socketId);
+      console.log(result);
     });
   },
 };

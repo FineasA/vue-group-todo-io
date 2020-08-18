@@ -2,10 +2,13 @@ const PORT = process.env.PORT || 3000;
 const express = require("express");
 const serveStatic = require("serve-static");
 const Datastore = require("nedb");
-const axios = require("axios").default;
+
 const path = require("path");
 
 const app = express();
+
+let users = [];
+let usersOnline = [];
 
 if (!process.env.PORT || process.env.NODE_ENV === "development") {
   app.use("/", serveStatic(path.join(__dirname, "../public")));
@@ -28,6 +31,13 @@ const database = new Datastore({
   filename: "database.db",
   timestampData: true,
 });
+
+const usersDatabase = new Datastore({
+  filename: "users.db",
+  timestampData: true,
+});
+
+usersDatabase.loadDatabase();
 database.loadDatabase();
 
 const io = require("socket.io")(server, {
@@ -43,17 +53,37 @@ const io = require("socket.io")(server, {
   },
 });
 
-app.get("/api", (req, res) => {
-  console.log(res.json({ test: 123 }));
-});
-
-//this is where we'll put a get request for data to load onto clients
-
 io.on("connection", (socket) => {
-  //update users list when user joins
+  socket.on("create-account", (newUser) => {
+    usersDatabase.find({ username: newUser.username }, (err, docs) => {
+      if (docs.length > 0) {
+        socket.emit("authentication-failed", true);
+      } else if (docs.length === 0) {
+        usersDatabase.insert(newUser);
+      }
+    });
+  });
+
+  socket.on("auth-login", (user) => {
+    usersDatabase.findOne(
+      { username: user.username, password: user.password },
+      (err, loginAuth) => {
+        // console.log(loginAuth);
+
+        if (loginAuth) {
+          socket.emit("login-success", true);
+        } else {
+          socket.emit("login-failed", true);
+        }
+      }
+    );
+  });
 
   //whenever i want to delete the database run this code.
   // database.remove({}, { multi: true });
+  // usersDatabase.remove({}, { multi: true });
+
+  //update users list when user joins
 
   database
     .find({})
@@ -63,9 +93,19 @@ io.on("connection", (socket) => {
       io.emit("data-recieved", data);
     });
 
+  //send all users
+  usersDatabase
+    .find({})
+    .sort({ createdAt: 1 })
+    .exec((err, users) => {
+      io.emit("send-users", users);
+    });
+
   console.log(socket.id);
-  socket.on("user-joined", (user) => {
-    io.emit("username-sent", user.username);
+  socket.on("user-joined", (userName) => {
+    console.log(userName);
+    usersOnline.push(userName);
+    io.emit("users-list-updated", usersOnline);
   });
 
   socket.on("user-entered-task", (taskData) => {
@@ -74,7 +114,25 @@ io.on("connection", (socket) => {
     io.emit("send-task-data", taskData);
   });
 
-  socket.on("user-edited-task", (editData) => {
+  socket.on("user-edited-task", (editData, oldTask) => {
     io.emit("send-edited-data", editData);
+
+    database.update(
+      {
+        todo: oldTask,
+      },
+      { editData },
+      (err, numReplaced) => {
+        console.log("Num replaced : ", numReplaced);
+      }
+    );
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log(reason);
+    if (reason === "transport close") {
+      io.emit("user-disconnected-update", socket.id);
+      console.log("User disconnected: ", socket.id);
+    }
   });
 });
