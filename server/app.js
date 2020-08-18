@@ -60,6 +60,7 @@ io.on("connection", (socket) => {
         socket.emit("authentication-failed", true);
       } else if (docs.length === 0) {
         usersDatabase.insert(newUser);
+        socket.emit("automatic-login");
       }
     });
   });

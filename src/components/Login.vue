@@ -82,6 +82,10 @@ export default {
     this.socket.on("login-success", () => {
       this.login();
     });
+
+    this.socket.on("automatic-login", () => {
+      this.login();
+    });
   },
 };
 </script>
