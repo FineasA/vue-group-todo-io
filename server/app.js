@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
       (err, loginAuth) => {
         // console.log(loginAuth);
 
-        if (loginAuth || loginAuth.length === 0) {
+        if (loginAuth || loginAuth.length === 0 || loginAuth === null) {
           socket.emit("login-success", true);
         } else {
           socket.emit("login-failed", true);
