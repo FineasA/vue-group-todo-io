@@ -23,8 +23,14 @@
         variant="danger"
         :show="failedAuth"
       >{{errMsg}}</b-alert>
-      <b-button @click="authenticateLogin" style="margin-top: 1.2rem" variant="primary">Login</b-button>
       <b-button
+        @click="authenticateLogin"
+        v-if="userConfigSelection === 'returning-user'"
+        style="margin-top: 1.2rem"
+        variant="primary"
+      >Login</b-button>
+      <b-button
+        v-if="userConfigSelection === 'new-user'"
         @click="createAccount"
         variant="info"
         style="margin-top: 1.2rem; margin-left: 1.2rem"
@@ -37,7 +43,7 @@
 import { EventBus } from "../main.js";
 
 export default {
-  props: ["socket"],
+  props: ["socket", "userConfigSelection"],
   data() {
     return {
       userAccount: {
@@ -58,8 +64,10 @@ export default {
     },
     login() {
       EventBus.$emit("login", this.userAccount.username);
+      console.log(this.socket.id);
       this.socket.emit("user-joined", {
         username: this.userAccount.username,
+        socketId: this.socket.id,
       });
     },
   },

@@ -5,9 +5,14 @@
         <h1 class="title-text display-4 text-white text-center">group todo</h1>
       </b-col>
     </b-row>
-    <b-row style="justify-content: center">
+    <b-row v-show="!userSelectedConfig">
+      <b-col cols="12">
+        <first-time-user></first-time-user>
+      </b-col>
+    </b-row>
+    <b-row v-show="userSelectedConfig" style="justify-content: center">
       <b-col>
-        <login v-show="!login" :socket="socket"></login>
+        <login v-show="!login" :socket="socket" :userConfigSelection="userConfigSelection"></login>
         <list-display v-show="login" :socket="socket"></list-display>
       </b-col>
     </b-row>
@@ -19,6 +24,7 @@
 import io from "socket.io-client";
 import Login from "./components/Login.vue";
 import ListDisplay from "./components/ListDisplay.vue";
+import FirstTimeUser from "./components/FirstTimeUser.vue";
 
 //import EventBus
 import { EventBus } from "./main.js";
@@ -27,16 +33,27 @@ export default {
   components: {
     Login,
     ListDisplay,
+    FirstTimeUser,
   },
   data() {
     return {
+      userSelectedConfig: false,
       login: false,
       socket: io("https://vue-group-todo-io.herokuapp.com/"),
+      //if local make sure localhost:3000
+      //if not local make sure heroku link https://vue-group-todo-io.herokuapp.com/
+      //also makesure its node server.js not nodemon
+      userConfigSelection: "",
     };
   },
   created() {
     EventBus.$on("login", () => {
       this.login = true;
+    });
+
+    EventBus.$on("user-config-selected", (selection) => {
+      this.userConfigSelection = selection;
+      this.userSelectedConfig = true;
     });
   },
 };

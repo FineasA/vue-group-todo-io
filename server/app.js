@@ -69,12 +69,12 @@ io.on("connection", (socket) => {
     usersDatabase.findOne(
       { username: user.username, password: user.password },
       (err, loginAuth) => {
-        // console.log(loginAuth);
-
-        if (loginAuth || loginAuth.length === 0 || loginAuth === null) {
-          socket.emit("login-success", true);
-        } else {
+        console.log(loginAuth);
+        console.log(user.password);
+        if (loginAuth === null || loginAuth.password !== user.password) {
           socket.emit("login-failed", true);
+        } else {
+          socket.emit("login-success", true);
         }
       }
     );
@@ -102,10 +102,10 @@ io.on("connection", (socket) => {
       io.emit("send-users", users);
     });
 
-  console.log(socket.id);
   socket.on("user-joined", (userName) => {
-    console.log(userName);
+    console.log("User-joined: username: ", userName);
     usersOnline.push(userName);
+    console.log("users online: ", usersOnline);
     io.emit("users-list-updated", usersOnline);
   });
 
@@ -132,8 +132,19 @@ io.on("connection", (socket) => {
   socket.on("disconnect", (reason) => {
     console.log(reason);
     if (reason === "transport close") {
-      io.emit("user-disconnected-update", socket.id);
-      console.log("User disconnected: ", socket.id);
+      //filter userOnline array with socket.id and return username to filter on client side
+      let userDisconnected = usersOnline.filter(
+        (user) => user.socketId === socket.id
+      );
+      const updatedUsers = usersOnline.filter(
+        (user) => user.socketId !== socket.id
+      );
+      usersOnline = updatedUsers;
+      console.log(userDisconnected);
+      if (userDisconnected.length > 0) {
+        io.emit("user-disconnected-update", userDisconnected[0].username);
+        console.log("User disconnected: ", userDisconnected[0].username);
+      }
     }
   });
 });

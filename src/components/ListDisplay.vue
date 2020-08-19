@@ -119,8 +119,6 @@ export default {
 
     //get users from server when others join
     this.socket.on("users-list-updated", (usersOnline) => {
-      console.log("????????????");
-      console.log(usersOnline);
       this.usersOnline = usersOnline;
     });
 
@@ -138,11 +136,12 @@ export default {
     });
 
     //get updated team members online from server
-    this.socket.on("user-disconnected-update", (socketId) => {
-      console.log(this.users);
-      console.log(socketId);
-      const result = this.users.filter((user) => user.socketId !== socketId);
-      console.log(result);
+    this.socket.on("user-disconnected-update", (userDisconnected) => {
+      console.log(this.usersOnline);
+      const filteredUsers = this.usersOnline.filter(
+        (user) => userDisconnected !== user.username
+      );
+      this.usersOnline = filteredUsers;
     });
   },
 };
