@@ -59,6 +59,8 @@ io.on("connection", (socket) => {
       if (docs.length > 0) {
         socket.emit("authentication-failed", true);
       } else if (docs.length === 0) {
+        newUser.online = true;
+        console.log("New user with online object: ", newUser);
         usersDatabase.insert(newUser);
         socket.emit("automatic-login");
       }
@@ -103,10 +105,34 @@ io.on("connection", (socket) => {
     });
 
   socket.on("user-joined", (userName) => {
+    console.log("Debug: ", userName);
     console.log("User-joined: username: ", userName);
+    usersDatabase.update(
+      {
+        username: userName.username,
+      },
+      {
+        $set: {
+          online: true,
+        },
+      },
+      (err, numReplaced) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Success replacing ", numReplaced, "items.");
+        }
+      }
+    );
     usersOnline.push(userName);
-    console.log("users online: ", usersOnline);
-    io.emit("users-list-updated", usersOnline);
+
+    //send updated users online to clients
+    usersDatabase
+      .find({})
+      .sort({ createdAt: 1 })
+      .exec((err, users) => {
+        io.emit("users-list-updated", users);
+      });
   });
 
   socket.on("user-entered-task", (taskData) => {
@@ -136,11 +162,44 @@ io.on("connection", (socket) => {
       let userDisconnected = usersOnline.filter(
         (user) => user.socketId === socket.id
       );
+      //update users database
+      console.log("User disconnected: ", userDisconnected);
+      if (userDisconnected.length > 0) {
+        usersDatabase.update(
+          {
+            username: userDisconnected[0].username,
+          },
+          {
+            $set: {
+              online: false,
+            },
+          },
+          (err, numReplaced) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(numReplaced);
+            }
+          }
+        );
+
+        //send updated users online list
+        usersDatabase
+          .find({})
+          .sort({ createdAt: 1 })
+          .exec((err, users) => {
+            console.log("Re:sort: ", users);
+            io.emit("users-list-updated", users);
+          });
+      } else {
+        return;
+      }
+
       const updatedUsers = usersOnline.filter(
         (user) => user.socketId !== socket.id
       );
       usersOnline = updatedUsers;
-      console.log(userDisconnected);
+
       if (userDisconnected.length > 0) {
         io.emit("user-disconnected-update", userDisconnected[0].username);
         console.log("User disconnected: ", userDisconnected[0].username);

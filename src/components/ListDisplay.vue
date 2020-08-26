@@ -51,9 +51,13 @@
         <p class="text-muted">Team Members</p>
         <hr />
         <ul>
-          <li class="users-list" v-for="(userOnline, index) in usersOnline" :key="index">
+          <!-- <li class="users-list" v-for="(userOnline, index) in usersOnline" :key="index">
             <font-awesome-icon color="lime" :icon="['fa', 'plug']" />
             {{' '}}{{userOnline.username}}
+          </li>-->
+          <li class="users-list" v-for="(user, index) in usersInProject" :key="index">
+            <font-awesome-icon :color="[user.online ? 'lime' : 'gray']" :icon="['fa', 'plug']" />
+            {{user.username}}
           </li>
         </ul>
       </b-col>
@@ -75,7 +79,7 @@ export default {
         userName: "",
         todo: "",
       },
-      usersOnline: [],
+      usersInProject: [],
       editing: false,
       newTask: "",
       oldTask: "",
@@ -118,8 +122,8 @@ export default {
     });
 
     //get users from server when others join
-    this.socket.on("users-list-updated", (usersOnline) => {
-      this.usersOnline = usersOnline;
+    this.socket.on("users-list-updated", (usersInProject) => {
+      this.usersInProject = usersInProject;
     });
 
     //get updated task data from server

@@ -42,7 +42,7 @@ export default {
       socket: io("https://vue-group-todo-io.herokuapp.com/"),
       //if local make sure localhost:3000
       //if not local make sure heroku link https://vue-group-todo-io.herokuapp.com/
-      //also makesure its node server.js not nodemon
+      //also makesure its node server.js not nodemon when on heroku, nodemon when local
       userConfigSelection: "",
     };
   },
