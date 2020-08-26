@@ -141,11 +141,11 @@ export default {
 
     //get updated team members online from server
     this.socket.on("user-disconnected-update", (userDisconnected) => {
-      console.log(this.usersOnline);
-      const filteredUsers = this.usersOnline.filter(
+      console.log(this.usersInProject);
+      const filteredUsers = this.usersInProject.filter(
         (user) => userDisconnected !== user.username
       );
-      this.usersOnline = filteredUsers;
+      this.usersInProject = filteredUsers;
     });
   },
 };
