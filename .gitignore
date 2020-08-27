@@ -1,5 +1,7 @@
 .DS_Store
 node_modules
+users.db
+database.db
 
 
 # local env files
