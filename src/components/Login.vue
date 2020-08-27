@@ -65,10 +65,9 @@ export default {
     },
     login() {
       EventBus.$emit("login", this.userAccount.username);
-      console.log("!!!!");
+
       this.userAccount.online = true;
-      console.log("User account data from client: ", this.userAccount);
-      console.log(this.socket.id);
+
       this.socket.emit("user-joined", {
         username: this.userAccount.username,
         socketId: this.socket.id,
@@ -77,7 +76,6 @@ export default {
   },
   created() {
     this.socket.on("send-users", (users) => {
-      console.log(users);
       this.users = users;
     });
 

@@ -51,10 +51,6 @@
         <p class="text-muted">Team Members</p>
         <hr />
         <ul>
-          <!-- <li class="users-list" v-for="(userOnline, index) in usersOnline" :key="index">
-            <font-awesome-icon color="lime" :icon="['fa', 'plug']" />
-            {{' '}}{{userOnline.username}}
-          </li>-->
           <li class="users-list" v-for="(user, index) in usersInProject" :key="index">
             <font-awesome-icon :color="[user.online ? 'lime' : 'gray']" :icon="['fa', 'plug']" />
             {{user.username}}
@@ -97,7 +93,6 @@ export default {
       );
     },
     editTask(index, oldTask) {
-      console.log(oldTask);
       this.oldTask = oldTask;
       this.indexClicked = index;
       this.editing = true;
@@ -114,7 +109,6 @@ export default {
   },
   created() {
     this.socket.on("data-recieved", (data) => {
-      console.log(data);
       this.todoItems = data;
     });
     EventBus.$on("login", (username) => {
@@ -141,7 +135,6 @@ export default {
 
     //get updated team members online from server
     this.socket.on("user-disconnected-update", (userDisconnected) => {
-      console.log(this.usersInProject);
       const filteredUsers = this.usersInProject.filter(
         (user) => userDisconnected !== user.username
       );
