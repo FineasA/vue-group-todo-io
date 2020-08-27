@@ -25,6 +25,7 @@
       >{{errMsg}}</b-alert>
       <b-button
         @click="authenticateLogin"
+        @keyup.enter="authenticateLogin"
         v-if="userConfigSelection === 'returning-user'"
         style="margin-top: 1.2rem"
         variant="primary"

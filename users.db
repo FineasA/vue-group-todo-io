@@ -1,0 +1,4 @@
+{"username":"dudeman","password":"caca1234","online":false,"_id":"0B8RvYHzZbgrjEvX","createdAt":{"$$date":1598548176350},"updatedAt":{"$$date":1598548198613}}
+{"username":"fin","password":"caca1234","online":false,"_id":"9r94CpEyadqeTJWF","createdAt":{"$$date":1598547870710},"updatedAt":{"$$date":1598548013474}}
+{"username":"dudeman","password":"caca1234","online":true,"_id":"0B8RvYHzZbgrjEvX","createdAt":{"$$date":1598548176350},"updatedAt":{"$$date":1598550291319}}
+{"username":"dudeman","password":"caca1234","online":false,"_id":"0B8RvYHzZbgrjEvX","createdAt":{"$$date":1598548176350},"updatedAt":{"$$date":1598550335713}}
